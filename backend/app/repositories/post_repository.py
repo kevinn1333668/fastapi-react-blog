@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -27,6 +27,7 @@ class PostRepository:
 
         self.db.add(post)
         await self.db.commit()
+        await self.db.refresh(post)
 
         query = (
             select(Post)
@@ -37,14 +38,34 @@ class PostRepository:
 
         return result.scalar_one()
 
-    async def get_posts(self, only_published: bool = True) -> list[Post]:
-        query = select(Post).options(selectinload(Post.images)).order_by(Post.created_at.desc())
+    async def get_posts(
+            self,
+            only_published: bool = True,
+            limit: int = 10,
+            offset: int = 0,
+    ) -> tuple[list[Post], int]:
+        query = select(Post)
 
         if only_published:
             query = query.where(Post.is_published.is_(True))
 
+        total_query = select(func.count(Post.id))
+        if only_published:
+            total_query = total_query.where(Post.is_published.is_(True))
+
+        total_result = await self.db.execute(total_query)
+        total = total_result.scalar_one()
+
+        query = (
+            query
+            .options(selectinload(Post.images))
+            .order_by(Post.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
         result = await self.db.execute(query)
-        return list(result.scalars().all())
+        items = list(result.scalars().all())
+        return items, total
 
     async def get_post_by_id(self, post_id: int) -> Post | None:
         query = (
@@ -61,6 +82,7 @@ class PostRepository:
             post: Post,
             content: str | None,
             is_published: bool | None = None,
+            images_data: list[dict] | None = None,
     ) -> Post:
         if content is not None:
             post.content = content
@@ -68,11 +90,39 @@ class PostRepository:
         if is_published is not None:
             post.is_published = is_published
 
-        await self.db.commit()
-        await self.db.refresh(post)
+        if images_data is not None:
+            post.images.clear()
 
-        return post
+            for image_data in images_data:
+                post.images.append(PostImage(**image_data))
+
+        await self.db.commit()
+
+        query = (
+            select(Post)
+            .where(Post.id == post.id)
+            .options(selectinload(Post.images))
+        )
+        result = await self.db.execute(query)
+        return result.scalar_one()
 
     async def delete_post(self, post: Post) -> None:
         await self.db.delete(post)
         await self.db.commit()
+
+    async def get_all_image_urls(self) -> list[str]:
+        query = select(PostImage.file_url)
+        result = await self.db.execute(query)
+        return list(result.scalars().all())
+
+    async def count_posts(
+            self,
+            only_published: bool = True,
+    ) -> int:
+        query = select(func.count(Post.id))
+
+        if only_published:
+            query = query.where(Post.is_published.is_(True))
+
+        result = await self.db.execute(query)
+        return result.scalar_one()

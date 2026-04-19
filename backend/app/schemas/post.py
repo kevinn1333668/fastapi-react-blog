@@ -23,4 +23,18 @@ class PostResponse(BaseModel):
 
 class PostUpdateRequest(BaseModel):
     content: str | None
-    is_published: bool
+    is_published: bool | None = None
+    image_urls: list[str] | None = None
+
+
+class CreatePostRequest(BaseModel):
+    content: str | None = None
+    image_urls: list[str] = []
+    is_published: bool = True
+
+
+class PostListRespone(BaseModel):
+    items: list[PostResponse]
+    limit: int
+    offset: int
+    total: int

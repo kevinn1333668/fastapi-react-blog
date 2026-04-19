@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from backend.app.api.endpoints import auth
 from backend.app.api.endpoints import posts
 from backend.app.api.endpoints import admin_posts
+from backend.app.api.endpoints import uploads
 
 app = FastAPI(
     docs_url="/docs",
@@ -18,6 +20,9 @@ app.add_middleware(
 
 )
 
+app.mount("/media", StaticFiles(directory="backend/media"), name="media")
+
 app.include_router(auth.router)
 app.include_router(posts.router)
 app.include_router(admin_posts.router)
+app.include_router(uploads.router)

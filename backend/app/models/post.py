@@ -40,4 +40,5 @@ class Post(Base):
         "PostImage",
         back_populates="post",
         cascade="all, delete, delete-orphan",
+        order_by="PostImage.sort_order",
     )
