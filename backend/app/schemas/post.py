@@ -33,7 +33,7 @@ class CreatePostRequest(BaseModel):
     is_published: bool = True
 
 
-class PostListRespone(BaseModel):
+class PostListResponse(BaseModel):
     items: list[PostResponse]
     limit: int
     offset: int

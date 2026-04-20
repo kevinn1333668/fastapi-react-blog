@@ -14,7 +14,6 @@ class Settings(BaseSettings):
     ADMIN_PASSWORD: str
 
     UPLOAD_DIR: str
-    BASE_URL: str
 
     @property
     def get_db_url(self):
