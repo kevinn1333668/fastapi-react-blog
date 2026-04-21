@@ -75,3 +75,10 @@ dist/
 *.tar
 *.gz
 *.zip
+
+# =========================
+# Frontend (защита от случайного коммита в корень)
+# =========================
+/node_modules/
+/package.json
+/package-lock.json
