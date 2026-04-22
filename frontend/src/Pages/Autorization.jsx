@@ -1,21 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  login as apiLogin,
-  fetchMe,
-  getStoredToken,
-  setStoredToken,
-  clearToken,
-} from "../api/auth";
+import { Form, useActionData, useNavigation } from "react-router-dom";
+import { fetchMe, getStoredToken, clearToken } from "../api/auth";
 
 export default function Autorization() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
+  const actionData = useActionData();
+  const navigation = useNavigation();
 
   useEffect(() => {
     let cancelled = false;
@@ -50,41 +41,10 @@ export default function Autorization() {
     };
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setIsSubmitting(true);
-
-    try {
-      const data = await apiLogin(username, password);
-      setStoredToken(data.access_token);
-
-      try {
-        const me = await fetchMe(data.access_token);
-        setCurrentUser(me.username);
-        navigate("/settings");
-      } catch {
-        clearToken();
-        setCurrentUser(null);
-        alert("Не удалось проверить сессию. Попробуйте снова.");
-      }
-    } catch (err) {
-      if (err.status === 401) {
-        setError("Неверный логин или пароль");
-        alert("Вход не выполнен: неверный логин или пароль.");
-      } else {
-        setError("Ошибка сети или сервера");
-        alert("Вход не выполнен: проверьте, что бэкенд запущен и доступен.");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
+      <Form
+        method="post"
         className="flex flex-col gap-4 p-6 w-full max-w-sm bg-white rounded-2xl shadow-md"
       >
         <h2 className="text-2xl font-semibold text-center">Админ-панель</h2>
@@ -99,9 +59,8 @@ export default function Autorization() {
 
         <input
           type="text"
+          name="username"
           placeholder="Логин"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
           className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
           autoComplete="username"
@@ -109,24 +68,25 @@ export default function Autorization() {
 
         <input
           type="password"
+          name="password"
           placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           className="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
           autoComplete="current-password"
         />
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {actionData?.error && (
+          <p className="text-sm text-red-500">{actionData.error}</p>
+        )}
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={navigation.state === "submitting"}
           className="py-2 text-white bg-blue-500 rounded-lg transition hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Вход…" : "Войти"}
+          {navigation.state === "submitting" ? "Вход…" : "Войти"}
         </button>
-      </form>
+      </Form>
     </div>
   );
 }

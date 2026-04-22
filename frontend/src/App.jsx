@@ -8,18 +8,26 @@ import AdminLayout from "./Components/AdminLayout";
 import DeletePost from "./Pages/DeletePost";
 import ChangePost from "./Pages/ChangePost";
 import AddPost from "./Pages/AddPost";
+import ErrorBoundary from "./Components/ErrorBoundary";
+import { postsLoader } from "./api/posts";
+import { authAction } from "./Pages/authAction";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
     children: [
-      { index: true, element: <Home /> },
+      {
+        index: true,
+        element: <Home />,
+        loader: postsLoader,
+        errorElement: <ErrorBoundary />,
+      },
       { path: "about", element: <About /> },
       { path: "*", element: <NotFound /> },
     ],
   },
-  { path: "admin", element: <Autorization /> },
+  { path: "admin", element: <Autorization />, action: authAction },
   { path: "*", element: <NotFound /> },
   {
     path: "settings",
