@@ -5,12 +5,8 @@ import { useLoaderData } from "react-router-dom";
 function Home() {
   const posts = useLoaderData();
   const sortedPosts = useMemo(
-    () =>
-      [...posts].sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      ),
-    [posts],
+    () => [...posts].sort((a, b) => b.id - a.id),
+    [posts]
   );
 
   return (

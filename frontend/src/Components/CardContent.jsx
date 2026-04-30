@@ -5,7 +5,7 @@ export default function CardContent({ content, images = [], date }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const sortedImages = useMemo(
     () => [...images].sort((a, b) => a.sort_order - b.sort_order),
-    [images],
+    [images]
   );
   const hasImages = sortedImages.length > 0;
   const safeIndex = hasImages
@@ -26,7 +26,7 @@ export default function CardContent({ content, images = [], date }) {
   const prevImage = () => {
     if (!hasImages) return;
     setCurrentIndex(
-      (prev) => (prev - 1 + sortedImages.length) % sortedImages.length,
+      (prev) => (prev - 1 + sortedImages.length) % sortedImages.length
     );
   };
 
@@ -37,8 +37,8 @@ export default function CardContent({ content, images = [], date }) {
   };
 
   return (
-    <div className="mx-auto my-6 w-1/2">
-      <div className="overflow-hidden bg-white rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105">
+    <div className="w-1/2 mx-auto my-6">
+      <div className="overflow-hidden transition-all duration-300 bg-white shadow-md rounded-xl hover:shadow-lg hover:scale-105">
         {hasImages && currentImage && (
           <div className="relative group">
             <div className="overflow-hidden bg-gray-100 aspect-video">
@@ -49,8 +49,8 @@ export default function CardContent({ content, images = [], date }) {
               />
             </div>
 
-            <div className="absolute right-0 bottom-0 left-0 p-4 bg-gradient-to-t to-transparent from-black/60">
-              <div className="flex justify-between items-center text-white">
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t to-transparent from-black/60">
+              <div className="flex items-center justify-between text-white">
                 <span className="text-sm">
                   {safeIndex + 1} из {sortedImages.length}
                 </span>
@@ -77,14 +77,14 @@ export default function CardContent({ content, images = [], date }) {
               <>
                 <button
                   onClick={prevImage}
-                  className="absolute left-3 top-1/2 p-2 text-white rounded-full opacity-0 transition-opacity -translate-y-1/2 bg-black/50 group-hover:opacity-100 hover:bg-black/70"
+                  className="absolute p-2 text-white transition-opacity -translate-y-1/2 rounded-full opacity-0 left-3 top-1/2 bg-black/50 group-hover:opacity-100 hover:bg-black/70"
                   aria-label="Предыдущее фото"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={nextImage}
-                  className="absolute right-3 top-1/2 p-2 text-white rounded-full opacity-0 transition-opacity -translate-y-1/2 bg-black/50 group-hover:opacity-100 hover:bg-black/70"
+                  className="absolute p-2 text-white transition-opacity -translate-y-1/2 rounded-full opacity-0 right-3 top-1/2 bg-black/50 group-hover:opacity-100 hover:bg-black/70"
                   aria-label="Следующее фото"
                 >
                   <ChevronRight className="w-5 h-5" />

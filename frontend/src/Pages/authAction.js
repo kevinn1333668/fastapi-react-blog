@@ -8,6 +8,7 @@ import {
 
 export async function authAction({ request }) {
   const formData = await request.formData();
+
   const username = formData.get("username");
   const password = formData.get("password");
 

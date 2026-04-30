@@ -49,14 +49,6 @@ export default function Autorization() {
       >
         <h2 className="text-2xl font-semibold text-center">Админ-панель</h2>
 
-        {sessionLoading ? (
-          <p className="text-sm text-center text-gray-500">Проверка сессии…</p>
-        ) : currentUser ? (
-          <p className="text-sm text-center text-green-600">
-            Вы вошли как {currentUser}
-          </p>
-        ) : null}
-
         <input
           type="text"
           name="username"

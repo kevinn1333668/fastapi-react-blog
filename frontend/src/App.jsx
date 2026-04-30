@@ -7,10 +7,11 @@ import Autorization from "./Pages/Autorization";
 import AdminLayout from "./Components/AdminLayout";
 import DeletePost from "./Pages/DeletePost";
 import ChangePost from "./Pages/ChangePost";
-import AddPost from "./Pages/AddPost";
 import ErrorBoundary from "./Components/ErrorBoundary";
 import { postsLoader } from "./api/posts";
 import { authAction } from "./Pages/authAction";
+import CreatePost from "./Pages/CreatePost";
+import { createPostAction } from "./Pages/createPostAction";
 
 const router = createBrowserRouter([
   {
@@ -35,7 +36,7 @@ const router = createBrowserRouter([
     children: [
       { path: "delete", element: <DeletePost /> },
       { path: "change", element: <ChangePost /> },
-      { path: "add", element: <AddPost /> },
+      { path: "add", element: <CreatePost />, action: createPostAction },
       { path: "*", element: <NotFound /> },
     ],
   },
