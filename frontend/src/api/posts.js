@@ -1,6 +1,25 @@
 import { getStoredToken } from "./auth";
 
-const API_BASE = "http://127.0.0.1:8000";
+export const API_BASE = "http://127.0.0.1:8000";
+
+export async function fetchPostsPage({ limit = 10, offset = 0 } = {}) {
+  const url = new URL(`${API_BASE}/posts`);
+  url.searchParams.set("limit", String(limit));
+  url.searchParams.set("offset", String(offset));
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    const err = new Error("Failed to fetch posts");
+    err.status = res.status;
+    throw err;
+  }
+
+  return res.json();
+}
+
+export async function homePostsLoader() {
+  return fetchPostsPage({ limit: 10, offset: 0 });
+}
 
 export async function postsLoader() {
   const res = await fetch(`${API_BASE}/posts`);

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import Lightbox from "yet-another-react-lightbox";
+import { API_BASE } from "../api/posts";
 
 export default function CardContent({
   content,
@@ -9,95 +10,97 @@ export default function CardContent({
   onDelete,
   onEdit,
 }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const PREVIEW_LIMIT = 4;
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
   const sortedImages = useMemo(
     () => [...images].sort((a, b) => a.sort_order - b.sort_order),
     [images]
   );
   const hasImages = sortedImages.length > 0;
-  const safeIndex = hasImages
-    ? Math.min(currentIndex, sortedImages.length - 1)
-    : 0;
-  const currentImage = hasImages ? sortedImages[safeIndex] : null;
   const formattedDate = new Date(date).toLocaleDateString("ru-RU", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
 
-  const nextImage = () => {
-    if (!hasImages) return;
-    setCurrentIndex((prev) => (prev + 1) % sortedImages.length);
-  };
+  const previewImages = useMemo(
+    () => sortedImages.slice(0, PREVIEW_LIMIT),
+    [sortedImages]
+  );
+  const previewCount = previewImages.length;
 
-  const prevImage = () => {
-    if (!hasImages) return;
-    setCurrentIndex(
-      (prev) => (prev - 1 + sortedImages.length) % sortedImages.length
-    );
-  };
+  const gridClassName = useMemo(() => {
+    if (previewCount <= 1) return "grid-cols-1";
+    if (previewCount === 2) return "grid-cols-2";
+    return "grid-cols-2 grid-rows-2";
+  }, [previewCount]);
 
-  const goToImage = (index) => {
+  const slides = useMemo(
+    () =>
+      sortedImages.map((img) => ({
+        src: `${API_BASE}${img.file_url}`,
+      })),
+    [sortedImages]
+  );
+
+  const openLightboxAt = (index) => {
     if (!hasImages) return;
     const clampedIndex = Math.max(0, Math.min(index, sortedImages.length - 1));
-    setCurrentIndex(clampedIndex);
+    setLightboxIndex(clampedIndex);
+    setIsLightboxOpen(true);
   };
 
   return (
     <div className="w-1/2 mx-auto my-6">
       <div className="overflow-hidden transition-all duration-300 bg-white shadow-md rounded-xl hover:shadow-lg hover:scale-105">
-        {hasImages && currentImage && (
-          <div className="relative group">
-            <div className="overflow-hidden bg-gray-100 aspect-video">
-              <img
-                src={`http://127.0.0.1:8000${currentImage.file_url}`}
-                alt={`${content} - фото ${currentIndex + 1}`}
-                className="object-contain w-full h-full"
-              />
+        {hasImages && (
+          <div className="p-4">
+            <div
+              className={`grid ${gridClassName} gap-1 overflow-hidden bg-gray-100 rounded-lg`}
+            >
+              {previewImages.map((image, idx) => {
+                const isLastPreview =
+                  idx === PREVIEW_LIMIT - 1 && sortedImages.length > PREVIEW_LIMIT;
+                const remainingCount = sortedImages.length - PREVIEW_LIMIT;
+                const key = image.id ?? image.file_url ?? idx;
+                const src = `${API_BASE}${image.file_url}`;
+                const isSingle = previewCount === 1;
+                const isThreeFirst = previewCount === 3 && idx === 0;
+                const tileClassName = isSingle
+                  ? "aspect-video"
+                  : isThreeFirst
+                    ? "row-span-2 h-full"
+                    : "aspect-square";
+                const imageClassName = isSingle ? "object-contain" : "object-cover";
+
+                return (
+                  <button
+                    type="button"
+                    key={key}
+                    onClick={() => openLightboxAt(idx)}
+                    className={`relative overflow-hidden bg-gray-200 ${tileClassName}`}
+                    aria-label={`Открыть фото ${idx + 1} из ${sortedImages.length}`}
+                  >
+                    <img
+                      src={src}
+                      alt={`${content} - фото ${idx + 1}`}
+                      className={`${imageClassName} w-full h-full`}
+                      loading="lazy"
+                    />
+
+                    {isLastPreview && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/55">
+                        <span className="text-3xl font-semibold text-white">
+                          +{remainingCount}
+                        </span>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t to-transparent from-black/60">
-              <div className="flex items-center justify-between text-white">
-                <span className="text-sm">
-                  {safeIndex + 1} из {sortedImages.length}
-                </span>
-
-                {sortedImages.length <= 10 && (
-                  <div className="flex gap-1">
-                    {sortedImages.map((image, idx) => (
-                      <button
-                        key={image.id ?? image.file_url ?? idx}
-                        onClick={() => goToImage(idx)}
-                        className={`h-1.5 rounded-full transition-all ${
-                          idx === safeIndex
-                            ? "w-6 bg-white"
-                            : "w-1.5 bg-white/50 hover:bg-white/80"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {sortedImages.length > 1 && (
-              <>
-                <button
-                  onClick={prevImage}
-                  className="absolute p-2 text-white transition-opacity -translate-y-1/2 rounded-full opacity-0 left-3 top-1/2 bg-black/50 group-hover:opacity-100 hover:bg-black/70"
-                  aria-label="Предыдущее фото"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={nextImage}
-                  className="absolute p-2 text-white transition-opacity -translate-y-1/2 rounded-full opacity-0 right-3 top-1/2 bg-black/50 group-hover:opacity-100 hover:bg-black/70"
-                  aria-label="Следующее фото"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </>
-            )}
           </div>
         )}
 
@@ -123,6 +126,18 @@ export default function CardContent({
           )}
         </div>
       </div>
+
+      {hasImages && (
+        <Lightbox
+          open={isLightboxOpen}
+          close={() => setIsLightboxOpen(false)}
+          slides={slides}
+          index={lightboxIndex}
+          on={{
+            view: ({ index }) => setLightboxIndex(index),
+          }}
+        />
+      )}
     </div>
   );
 }

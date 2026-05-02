@@ -4,15 +4,15 @@ import About from "./Pages/About";
 import NotFound from "./Pages/NotFound";
 import Layout from "./Components/Layout";
 import Autorization from "./Pages/Autorization";
-import AdminLayout from "./Components/AdminLayout";
 import ErrorBoundary from "./Components/ErrorBoundary";
-import { postsLoader } from "./api/posts";
+import { homePostsLoader, postsLoader } from "./api/posts";
 import { authAction } from "./Pages/authAction";
 import CreatePost from "./Pages/CreatePost";
 import { createPostAction } from "./Pages/createPostAction";
 import AdminPosts from "./Pages/AdminPosts";
 import ChangePost from "./Pages/ChangePost";
 import { deletePostAction } from "./Pages/deletePostAction";
+import ProtectedRoute from "./Components/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -22,7 +22,7 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />,
-        loader: postsLoader,
+        loader: homePostsLoader,
         errorElement: <ErrorBoundary />,
       },
       { path: "about", element: <About /> },
@@ -33,7 +33,11 @@ const router = createBrowserRouter([
   { path: "*", element: <NotFound /> },
   {
     path: "settings",
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute>
+        <Layout isAdmin={true} />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,

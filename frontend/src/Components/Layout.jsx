@@ -2,11 +2,11 @@ import { Outlet, useNavigation } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 
-function Layout() {
+function Layout({ isAdmin = false }) {
   const navigation = useNavigation();
   return (
     <>
-      <Header />
+      <Header isAdmin={isAdmin} />
       <main>
         {navigation.state === "loading" && (
           <div className="flex justify-center items-center h-screen">
