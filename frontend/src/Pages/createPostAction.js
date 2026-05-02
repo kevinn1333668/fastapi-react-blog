@@ -7,7 +7,7 @@ export async function createPostAction({ request }) {
   const token = getStoredToken();
 
   if (!token) {
-    return redirect("/login");
+    return redirect("/admin");
   }
 
   const formData = await request.formData();
@@ -16,11 +16,11 @@ export async function createPostAction({ request }) {
 
   try {
     await createPost(content, isPublished);
-    return redirect("/posts");
+    return redirect("/settings");
   } catch (err) {
     if (err.status === 401) {
       clearToken();
-      return redirect("/login");
+      return redirect("/admin");
     }
     return { error: err.detail || "Ошибка при создании поста" };
   }

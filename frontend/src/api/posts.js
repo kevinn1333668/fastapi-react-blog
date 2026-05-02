@@ -49,3 +49,22 @@ export async function createPost(content, isPublished = true, imageUrls = []) {
 
   return res.json();
 }
+
+export async function deletePost(postId) {
+  const token = getStoredToken();
+
+  const response = await fetch(`${API_BASE}/admin/posts/${postId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = new Error("Failed to delete post");
+    error.status = response.status;
+    throw error;
+  }
+
+  return true;
+}

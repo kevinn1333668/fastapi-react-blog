@@ -19,6 +19,7 @@ function Home() {
             content={post.content || "Описание отсутствует"}
             images={post.images}
             date={post.created_at}
+            isAdmin={false}
           />
         ))}
       </div>

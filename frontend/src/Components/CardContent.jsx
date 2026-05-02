@@ -1,7 +1,14 @@
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react"; // или свои иконки
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function CardContent({ content, images = [], date }) {
+export default function CardContent({
+  content,
+  images = [],
+  date,
+  isAdmin = false,
+  onDelete,
+  onEdit,
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const sortedImages = useMemo(
     () => [...images].sort((a, b) => a.sort_order - b.sort_order),
@@ -97,6 +104,23 @@ export default function CardContent({ content, images = [], date }) {
         <div className="p-6">
           <p className="mb-4 leading-relaxed text-gray-600">{content}</p>
           <p className="text-sm text-gray-400">{formattedDate}</p>
+
+          {isAdmin && (
+            <div className="flex gap-3 pt-4 mt-6 border-t border-gray-100">
+              <button
+                onClick={onDelete}
+                className="flex items-center gap-2 px-4 py-2 text-white transition bg-red-500 rounded-lg hover:bg-red-600"
+              >
+                🗑️ Удалить
+              </button>
+              <button
+                onClick={onEdit}
+                className="flex items-center gap-2 px-4 py-2 text-white transition bg-orange-500 rounded-lg hover:bg-orange-600"
+              >
+                ✏️ Редактировать
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
