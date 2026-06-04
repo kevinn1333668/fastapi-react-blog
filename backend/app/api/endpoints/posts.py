@@ -2,10 +2,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 
+
 from backend.app.schemas.post import PostResponse, PostListResponse
+from backend.app.schemas.user import UserResponse
 from backend.app.services.post_service import PostService
 from backend.app.dependencies.post import get_post_service
-
+from backend.app.dependencies.auth import get_current_user
 
 router = APIRouter(tags=["posts"])
 admin_router = APIRouter(prefix="/admin/posts", tags=["admin-posts"])
@@ -14,6 +16,7 @@ admin_router = APIRouter(prefix="/admin/posts", tags=["admin-posts"])
 @router.get("/posts", response_model=PostListResponse)
 async def get_posts(
         service: Annotated[PostService, Depends(get_post_service)],
+        current_user: Annotated[UserResponse, Depends(get_current_user)],
         limit: int = Query(10, ge=1, le=50),
         offset: int = Query(0, ge=0),
 ):
@@ -25,6 +28,7 @@ async def get_posts(
 
 @router.get("/posts/{post_id}", response_model=PostResponse)
 async def get_post(
+        current_user: Annotated[UserResponse, Depends(get_current_user)],
         post_id: int,
         service: Annotated[PostService, Depends(get_post_service)],
 ):

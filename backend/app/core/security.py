@@ -14,44 +14,45 @@ from backend.app.core.config import settings
 
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oath2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login/")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login/")
 
 
+def hash_password(password: str) -> str:
+    return bcrypt_context.hash(password)
 
-def create_access_token(username: str, expires_delta: timedelta = timedelta(minutes=30)):
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt_context.verify(plain_password, hashed_password)
+
+
+def create_access_token(
+        user_id: int,
+        username: str,
+        is_admin: bool,
+        expires_delta: timedelta = timedelta(minutes=30)
+) -> str:
     expires = datetime.now() + expires_delta
-    encode = {"sub": username, "type": "access", "exp": int(expires.timestamp())}
-    return jwt.encode(encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    payload = {
+        "sub": str(user_id),
+        "username": username,
+        "is_admin": is_admin,
+        "type": "access",
+        "exp": int(expires.timestamp())}
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
 def decode_token(token: str) -> dict:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        return payload
+        return jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+        )
 
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate user"
+            detail="Could not validate user",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
-
-def get_user_from_token(token: Annotated[str, Depends(oath2_scheme)]) -> UserResponse:
-    try:
-        payload = decode_token(token)
-        username: str = payload["sub"]
-        expire: int = payload["exp"]
-
-        if username is None or username != settings.ADMIN_USERNAME:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect username",
-            )
-
-        return UserResponse(username=username)
-
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate user"
-        )

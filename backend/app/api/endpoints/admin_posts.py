@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from backend.app.core.security import get_user_from_token
+from backend.app.dependencies.auth import get_current_admin_user
 from backend.app.schemas.post import PostResponse, PostUpdateRequest, CreatePostRequest
 from backend.app.schemas.user import UserResponse
 from backend.app.services.post_service import PostService
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/admin/posts", tags=["admin-posts"])
 async def create_post(
         data: CreatePostRequest,
         service: Annotated[PostService, Depends(get_post_service)],
-        current_user: Annotated[UserResponse, Depends(get_user_from_token)],
+        current_user: Annotated[UserResponse, Depends(get_current_admin_user)],
 ):
     try:
         return await service.create_post(
@@ -35,7 +35,7 @@ async def update_post(
         post_id: int,
         data: PostUpdateRequest,
         service: Annotated[PostService, Depends(get_post_service)],
-        current_user: Annotated[UserResponse, Depends(get_user_from_token)],
+        current_user: Annotated[UserResponse, Depends(get_current_admin_user)],
 ):
     try:
         return await service.update_post(
@@ -62,7 +62,7 @@ async def update_post(
 async def delete_post(
         post_id: int,
         service: Annotated[PostService, Depends(get_post_service)],
-        current_user: Annotated[UserResponse, Depends(get_user_from_token)],
+        current_user: Annotated[UserResponse, Depends(get_current_admin_user)],
 ):
     try:
         return await service.delete_post(post_id=post_id)

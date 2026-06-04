@@ -10,8 +10,6 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
 
-    ADMIN_USERNAME: str
-    ADMIN_PASSWORD: str
 
     UPLOAD_DIR: str
 

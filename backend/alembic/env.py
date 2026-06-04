@@ -10,6 +10,7 @@ from alembic import context
 from backend.app.core.config import settings
 from backend.app.core.db import Base
 from backend.app.models.post import Post
+from backend.app.models.user import User
 from backend.app.models.post_image import PostImage
 
 # this is the Alembic Config object, which provides

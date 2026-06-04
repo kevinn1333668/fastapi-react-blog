@@ -4,40 +4,50 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from backend.app.core.security import create_access_token
 from backend.app.schemas.auth import TokenResponse
 from backend.app.core.config import settings
-from backend.app.dependencies.auth import get_user
-from backend.app.schemas.user import UserResponse
+from backend.app.dependencies.auth import get_auth_service, get_current_user
+from backend.app.schemas.user import UserResponse, CreateUser
 
 from typing import Annotated
 from dotenv import load_dotenv
 
+from backend.app.services.auth_service import AuthService
 
 load_dotenv()
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-
-async def _authenticate_user(
-        username: str,
-        password: str,
+@router.post(
+    "/register/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=UserResponse,
+)
+async def register(
+        data: CreateUser,
+        auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
-    if username != settings.ADMIN_USERNAME or password != settings.ADMIN_PASSWORD:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    return username
+    user = await auth_service.register(data)
+    return user
 
 
-@router.post("/login/", response_model=TokenResponse,status_code=status.HTTP_200_OK)
+@router.post(
+    "/login/",
+    response_model=TokenResponse,
+    status_code=status.HTTP_200_OK
+)
 async def login_user(
-        response: Response,
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
-    username = await _authenticate_user(form_data.username, form_data.password)
-    access_token = create_access_token(username=username)
+    user = await auth_service.authenticate_user(
+        username=form_data.username,
+        password=form_data.password
+    )
+    access_token = create_access_token(
+        user_id=user.id,
+        username=user.username,
+        is_admin=user.is_admin,
+    )
 
     return {
         "access_token": access_token,
@@ -45,8 +55,9 @@ async def login_user(
     }
 
 
-@router.get("/me", response_model=UserResponse,status_code=status.HTTP_200_OK)
+
+@router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def get_me(
-        current_user: Annotated[UserResponse, Depends(get_user)],
+    current_user=Depends(get_current_user),
 ):
     return current_user
