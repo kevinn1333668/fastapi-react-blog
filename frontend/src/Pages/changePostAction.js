@@ -20,7 +20,6 @@ export async function changePostAction({ request }) {
   }
 
   const content = (formData.get("content") || "").toString().trim();
-  const isPublished = formData.get("is_published") === "on";
 
   let keptUrls = [];
   try {
@@ -50,7 +49,6 @@ export async function changePostAction({ request }) {
 
     await updatePost(postId, {
       content: content || null,
-      isPublished,
       imageUrls: [...keptUrls, ...newUrls],
     });
 

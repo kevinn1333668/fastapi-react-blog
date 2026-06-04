@@ -226,17 +226,6 @@ export default function ChangePost() {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="is_published"
-            id="is_published"
-            defaultChecked={post.is_published}
-            className="w-4 h-4"
-          />
-          <label htmlFor="is_published">Опубликован</label>
-        </div>
-
         {displayError && <p className="text-red-500">{displayError}</p>}
 
         <div className="flex gap-3">

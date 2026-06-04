@@ -9,8 +9,6 @@ import ErrorBoundary from "./Components/ErrorBoundary";
 import { homePostsLoader, adminPostsLoader, changePostLoader } from "./api/posts";
 import { authAction } from "./Pages/authAction";
 import { registerAction } from "./Pages/registerAction";
-import CreatePost from "./Pages/CreatePost";
-import { createPostAction } from "./Pages/createPostAction";
 import AdminPosts from "./Pages/AdminPosts";
 import ChangePost from "./Pages/ChangePost";
 import { deletePostAction } from "./Pages/deletePostAction";
@@ -70,7 +68,6 @@ const router = createBrowserRouter([
         loader: changePostLoader,
         action: changePostAction,
       },
-      { path: "add", element: <CreatePost />, action: createPostAction },
       { path: "*", element: <NotFound /> },
     ],
   },

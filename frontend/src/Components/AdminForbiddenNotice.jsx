@@ -1,14 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { consumeAdminForbidden } from "../api/guards";
 
 export default function AdminForbiddenNotice() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (consumeAdminForbidden()) {
-      setVisible(true);
-    }
-  }, []);
+  const [visible, setVisible] = useState(() => consumeAdminForbidden());
 
   if (!visible) return null;
 
