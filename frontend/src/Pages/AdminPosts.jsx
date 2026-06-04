@@ -1,10 +1,11 @@
 // AdminPosts.jsx
 import CardContent from "../Components/CardContent";
 import { useMemo } from "react";
-import { useLoaderData, Form } from "react-router-dom";
+import { useLoaderData, Form, useNavigate } from "react-router-dom";
 
 function AdminPosts() {
   const posts = useLoaderData();
+  const navigate = useNavigate();
   const sortedPosts = useMemo(
     () => [...posts].sort((a, b) => b.id - a.id),
     [posts]
@@ -23,9 +24,10 @@ function AdminPosts() {
               const form = document.getElementById(`delete-form-${post.id}`);
               form?.requestSubmit();
             }}
+            onEdit={() => navigate(`/settings/change?postId=${post.id}`)}
           />
 
-          {/* Скрытая форма для отправки DELETE запроса */}
+          {/* DELETE */}
           <Form
             method="post"
             id={`delete-form-${post.id}`}

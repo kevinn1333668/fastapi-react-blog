@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
 import { API_BASE } from "../api/posts";
+import PostActionsMenu from "./PostActionsMenu";
 
 export default function CardContent({
   content,
@@ -54,7 +55,8 @@ export default function CardContent({
 
   return (
     <div className="w-1/2 mx-auto my-6">
-      <div className="overflow-hidden transition-all duration-300 bg-white shadow-md rounded-xl hover:shadow-lg hover:scale-105">
+      <div className="relative overflow-visible transition-all duration-300 bg-white shadow-md rounded-xl hover:shadow-lg hover:scale-105">
+        {isAdmin && <PostActionsMenu onEdit={onEdit} onDelete={onDelete} />}
         {hasImages && (
           <div className="p-4">
             <div
@@ -62,7 +64,8 @@ export default function CardContent({
             >
               {previewImages.map((image, idx) => {
                 const isLastPreview =
-                  idx === PREVIEW_LIMIT - 1 && sortedImages.length > PREVIEW_LIMIT;
+                  idx === PREVIEW_LIMIT - 1 &&
+                  sortedImages.length > PREVIEW_LIMIT;
                 const remainingCount = sortedImages.length - PREVIEW_LIMIT;
                 const key = image.id ?? image.file_url ?? idx;
                 const src = `${API_BASE}${image.file_url}`;
@@ -71,9 +74,11 @@ export default function CardContent({
                 const tileClassName = isSingle
                   ? "aspect-video"
                   : isThreeFirst
-                    ? "row-span-2 h-full"
-                    : "aspect-square";
-                const imageClassName = isSingle ? "object-contain" : "object-cover";
+                  ? "row-span-2 h-full"
+                  : "aspect-square";
+                const imageClassName = isSingle
+                  ? "object-contain"
+                  : "object-cover";
 
                 return (
                   <button
@@ -81,7 +86,9 @@ export default function CardContent({
                     key={key}
                     onClick={() => openLightboxAt(idx)}
                     className={`relative overflow-hidden bg-gray-200 ${tileClassName}`}
-                    aria-label={`Открыть фото ${idx + 1} из ${sortedImages.length}`}
+                    aria-label={`Открыть фото ${idx + 1} из ${
+                      sortedImages.length
+                    }`}
                   >
                     <img
                       src={src}
@@ -107,23 +114,6 @@ export default function CardContent({
         <div className="p-6">
           <p className="mb-4 leading-relaxed text-gray-600">{content}</p>
           <p className="text-sm text-gray-400">{formattedDate}</p>
-
-          {isAdmin && (
-            <div className="flex gap-3 pt-4 mt-6 border-t border-gray-100">
-              <button
-                onClick={onDelete}
-                className="flex items-center gap-2 px-4 py-2 text-white transition bg-red-500 rounded-lg hover:bg-red-600"
-              >
-                🗑️ Удалить
-              </button>
-              <button
-                onClick={onEdit}
-                className="flex items-center gap-2 px-4 py-2 text-white transition bg-orange-500 rounded-lg hover:bg-orange-600"
-              >
-                ✏️ Редактировать
-              </button>
-            </div>
-          )}
         </div>
       </div>
 

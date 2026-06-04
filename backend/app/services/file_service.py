@@ -12,7 +12,7 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 ALLOWED_CONTENT_TYPES = {
     "image/jpeg",
     "image/png",
-    "image/webq"
+    "image/webp"
 }
 
 class FileService:
