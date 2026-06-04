@@ -20,11 +20,6 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post(
     "/register/",
     status_code=status.HTTP_201_CREATED,
-    response_model=UserResponse,
-)
-@router.post(
-    "/register/",
-    status_code=status.HTTP_201_CREATED,
     response_model=AuthResponse,
 )
 async def register(
@@ -40,6 +35,7 @@ async def register(
     )
 
     return {
+        "id": user.id,
         "user": user,
         "access_token": access_token,
         "is_admin": user.is_admin,
