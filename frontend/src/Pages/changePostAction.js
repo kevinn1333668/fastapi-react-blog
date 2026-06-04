@@ -1,37 +1,59 @@
 import { redirect } from "react-router-dom";
-import { createPost } from "../api/posts";
+import { updatePost } from "../api/posts";
 import { uploadImage } from "../api/uploads";
 import { getStoredToken, clearSession } from "../api/auth";
 import { AuthError, ForbiddenError } from "../api/client";
 import { ensureAdminAccess, markAdminForbidden } from "../api/guards";
 
-export async function createPostAction({ request }) {
+export async function changePostAction({ request }) {
   ensureAdminAccess();
 
-  const token = getStoredToken();
-  if (!token) {
+  if (!getStoredToken()) {
     return redirect("/login");
   }
 
   const formData = await request.formData();
+  const postId = formData.get("post_id");
+
+  if (!postId) {
+    return redirect("/settings");
+  }
+
   const content = (formData.get("content") || "").toString().trim();
   const isPublished = formData.get("is_published") === "on";
+
+  let keptUrls = [];
+  try {
+    keptUrls = JSON.parse(formData.get("image_urls") || "[]");
+  } catch {
+    keptUrls = [];
+  }
+
+  if (!Array.isArray(keptUrls)) {
+    keptUrls = [];
+  }
+
   const files = formData
     .getAll("images")
     .filter((f) => f instanceof Blob && f.size > 0);
 
-  if (!content && files.length === 0) {
+  if (!content && keptUrls.length === 0 && files.length === 0) {
     return { error: "Добавьте текст или хотя бы одно фото" };
   }
 
   try {
-    const imageUrls = [];
+    const newUrls = [];
     for (const file of files) {
       const fileUrl = await uploadImage(file);
-      imageUrls.push(fileUrl);
+      newUrls.push(fileUrl);
     }
 
-    await createPost(content || null, isPublished, imageUrls);
+    await updatePost(postId, {
+      content: content || null,
+      isPublished,
+      imageUrls: [...keptUrls, ...newUrls],
+    });
+
     return redirect("/settings");
   } catch (err) {
     if (err instanceof AuthError || err?.code === "UNAUTHORIZED" || err.status === 401) {
@@ -42,6 +64,6 @@ export async function createPostAction({ request }) {
       markAdminForbidden();
       return redirect("/");
     }
-    return { error: err.detail || "Ошибка при создании поста" };
+    return { error: err.detail || "Ошибка при сохранении поста" };
   }
 }
