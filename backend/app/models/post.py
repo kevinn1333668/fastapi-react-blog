@@ -26,14 +26,14 @@ class Post(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=utcnow(),
+        default=utcnow,
         nullable=False,
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
-        onupdate=utcnow(),
+        onupdate=utcnow,
     )
 
     images: Mapped[list["PostImage"]] = relationship(
