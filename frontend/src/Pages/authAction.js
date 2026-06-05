@@ -2,8 +2,8 @@ import { redirect } from "react-router-dom";
 import {
   login as apiLogin,
   fetchMe,
-  setStoredToken,
-  clearToken,
+  setSession,
+  clearSession,
 } from "../api/auth";
 
 export async function authAction({ request }) {
@@ -14,17 +14,18 @@ export async function authAction({ request }) {
 
   try {
     const data = await apiLogin(username, password);
-    setStoredToken(data.access_token);
 
     try {
-      await fetchMe(data.access_token);
-      return redirect("/settings");
+      const me = await fetchMe(data.access_token);
+      setSession({ access_token: data.access_token, user: me });
+      return redirect(me.is_admin ? "/settings" : "/");
     } catch {
-      clearToken();
+      clearSession();
       return { error: "Не удалось проверить сессию. Попробуйте снова." };
     }
   } catch (err) {
-    if (err.status === 401) {
+    clearSession();
+    if (err.status === 401 || err.status === 404) {
       return { error: "Неверный логин или пароль" };
     }
     return { error: "Ошибка сети или сервера" };

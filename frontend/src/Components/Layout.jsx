@@ -1,12 +1,16 @@
 import { Outlet, useNavigation } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
+import AdminForbiddenNotice from "./AdminForbiddenNotice";
+import { isAdminUser } from "../api/guards";
 
-function Layout({ isAdmin = false }) {
+function Layout() {
   const navigation = useNavigation();
+
   return (
     <>
-      <Header isAdmin={isAdmin} />
+      <Header />
+      {!isAdminUser() && <AdminForbiddenNotice />}
       <main>
         {navigation.state === "loading" && (
           <div className="flex justify-center items-center h-screen">

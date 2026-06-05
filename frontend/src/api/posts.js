@@ -1,13 +1,20 @@
-import { getStoredToken } from "./auth";
+import { redirect } from "react-router-dom";
+import { API_BASE, getStoredToken } from "./auth";
+import { apiFetch } from "./client";
+import {
+  ensureAdminAccess,
+  handleApiGuardError,
+  isAdminUser,
+} from "./guards";
 
-export const API_BASE = "http://127.0.0.1:8000";
+export { API_BASE };
 
 export async function fetchPostsPage({ limit = 10, offset = 0 } = {}) {
   const url = new URL(`${API_BASE}/posts`);
   url.searchParams.set("limit", String(limit));
   url.searchParams.set("offset", String(offset));
 
-  const res = await fetch(url);
+  const res = await apiFetch(url.pathname + url.search);
   if (!res.ok) {
     const err = new Error("Failed to fetch posts");
     err.status = res.status;
@@ -18,31 +25,36 @@ export async function fetchPostsPage({ limit = 10, offset = 0 } = {}) {
 }
 
 export async function homePostsLoader() {
-  return fetchPostsPage({ limit: 10, offset: 0 });
-}
-
-export async function postsLoader() {
-  const res = await fetch(`${API_BASE}/posts`);
-
-  if (!res.ok) {
-    const err = new Error("Failed to fetch posts");
-    err.status = res.status;
-    throw err;
+  if (!getStoredToken()) {
+    throw redirect("/login");
   }
-
-  const data = await res.json();
-  return data.items ?? [];
+  if (isAdminUser()) {
+    throw redirect("/settings");
+  }
+  try {
+    return await fetchPostsPage({ limit: 10, offset: 0 });
+  } catch (err) {
+    handleApiGuardError(err);
+  }
 }
+
+export async function adminPostsLoader() {
+  ensureAdminAccess();
+  try {
+    const data = await fetchPostsPage({ limit: 50, offset: 0 });
+    return data.items ?? [];
+  } catch (err) {
+    handleApiGuardError(err);
+  }
+}
+
+/** @deprecated use adminPostsLoader for /settings */
+export const postsLoader = adminPostsLoader;
 
 export async function createPost(content, isPublished = true, imageUrls = []) {
-  const token = getStoredToken();
-
-  const res = await fetch(`${API_BASE}/admin/posts`, {
+  const res = await apiFetch("/admin/posts", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`, // ← ключевой момент
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       content,
       image_urls: imageUrls,
@@ -53,15 +65,50 @@ export async function createPost(content, isPublished = true, imageUrls = []) {
   if (!res.ok) {
     const err = new Error("Failed to create post");
     err.status = res.status;
-    if (res.status === 401) {
-      err.detail = "Не авторизован. Пожалуйста, войдите снова.";
-    } else {
-      try {
-        const data = await res.json();
-        err.detail = data.detail;
-      } catch {
-        /* ignore */
-      }
+    try {
+      const data = await res.json();
+      err.detail = data.detail;
+    } catch {
+      /* ignore */
+    }
+    throw err;
+  }
+
+  return res.json();
+}
+
+export async function fetchPostById(postId) {
+  const res = await apiFetch(`/posts/${postId}`);
+  if (!res.ok) {
+    const err = new Error("Failed to fetch post");
+    err.status = res.status;
+    throw err;
+  }
+  return res.json();
+}
+
+export async function updatePost(
+  postId,
+  { content, isPublished, imageUrls },
+) {
+  const res = await apiFetch(`/admin/posts/${postId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content,
+      is_published: isPublished,
+      image_urls: imageUrls,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = new Error("Failed to update post");
+    err.status = res.status;
+    try {
+      const data = await res.json();
+      err.detail = data.detail;
+    } catch {
+      /* ignore */
     }
     throw err;
   }
@@ -70,13 +117,8 @@ export async function createPost(content, isPublished = true, imageUrls = []) {
 }
 
 export async function deletePost(postId) {
-  const token = getStoredToken();
-
-  const response = await fetch(`${API_BASE}/admin/posts/${postId}`, {
+  const response = await apiFetch(`/admin/posts/${postId}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   if (!response.ok) {
@@ -86,4 +128,23 @@ export async function deletePost(postId) {
   }
 
   return true;
+}
+
+export async function changePostLoader({ request }) {
+  ensureAdminAccess();
+  const url = new URL(request.url);
+  const postId = url.searchParams.get("postId");
+
+  if (!postId) {
+    throw redirect("/settings");
+  }
+
+  try {
+    return await fetchPostById(postId);
+  } catch (err) {
+    if (err.status === 404) {
+      throw redirect("/settings");
+    }
+    handleApiGuardError(err);
+  }
 }
