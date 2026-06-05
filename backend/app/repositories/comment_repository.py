@@ -29,15 +29,14 @@ class CommentRepository:
             select(Comment)
             .options(selectinload(Comment.author))
             .where(Comment.post_id == post_id)
-            .order_by(Comment.created_at.desc())
+            .order_by(Comment.created_at.asc())
         )
         result = await self.db.execute(query)
         return list(result.scalars().all())
 
     async def update(self, comment: Comment) -> Comment:
         await self.db.commit()
-        await self.db.refresh(comment)
-        return comment
+        return await self.get_by_id(comment.id)
 
     async def delete(self, comment: Comment) -> None:
         await self.db.delete(comment)

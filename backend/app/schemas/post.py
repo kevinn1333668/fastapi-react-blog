@@ -23,6 +23,7 @@ class PostResponse(BaseModel):
     images: list[PostImageResponse]
 
 
+
 class PostUpdateRequest(BaseModel):
     content: str | None
     is_published: bool | None = None

@@ -24,10 +24,11 @@ class CommentService:
         return await self.comment_repository.create(comment)
 
     async def get_post_comments(self, post_id: int) -> list[Comment]:
-        comments = await self.comment_repository.get_by_post_id(post_id)
-        if not comments:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
-        return comments
+        post = await self.post_repository.get_by_id(post_id)
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+
+        return await self.comment_repository.get_by_post_id(post_id)
 
     async def update_comment(
             self,

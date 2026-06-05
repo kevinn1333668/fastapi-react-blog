@@ -32,6 +32,11 @@ class Comment(Base):
         default=utcnow,
         nullable=False
     )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        onupdate=utcnow,
+    )
 
     post: Mapped["Post"] = relationship(back_populates="comments")
     author: Mapped["User"] = relationship(back_populates="comments")

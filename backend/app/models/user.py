@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from backend.app.models.comment import Comment
+    from backend.app.models.quiz import QuizAttempt
 
 
 class User(Base):
@@ -31,3 +32,5 @@ class User(Base):
         back_populates="author",
         cascade="all, delete-orphan",
     )
+
+    quiz_attempts: Mapped[list["QuizAttempt"]] = relationship(back_populates="user")

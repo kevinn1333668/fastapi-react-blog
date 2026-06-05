@@ -47,5 +47,5 @@ class Post(Base):
     comments: Mapped[list["Comment"]] = relationship(
         back_populates="post",
         cascade="all, delete-orphan",
-        order_by="Comment.created_at.desc()",
+        order_by="Comment.created_at.asc()",
     )

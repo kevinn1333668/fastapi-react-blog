@@ -23,5 +23,6 @@ class CommentResponse(BaseModel):
     post_id: int
     author: CommentAuthor
     created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

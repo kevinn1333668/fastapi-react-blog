@@ -126,3 +126,4 @@ class PostRepository:
 
         result = await self.db.execute(query)
         return result.scalar_one()
+
