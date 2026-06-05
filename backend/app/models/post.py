@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from backend.app.models.post_image import PostImage
+    from backend.app.models.comment import Comment
 
 
 class Post(Base):
@@ -41,4 +42,10 @@ class Post(Base):
         back_populates="post",
         cascade="all, delete, delete-orphan",
         order_by="PostImage.sort_order",
+    )
+
+    comments: Mapped[list["Comment"]] = relationship(
+        back_populates="post",
+        cascade="all, delete-orphan",
+        order_by="Comment.created_at.desc()",
     )

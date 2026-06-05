@@ -10,7 +10,7 @@ from backend.app.dependencies.post import get_post_service
 from backend.app.dependencies.auth import get_current_user
 
 router = APIRouter(tags=["posts"])
-admin_router = APIRouter(prefix="/admin/posts", tags=["admin-posts"])
+admin_router = APIRouter(prefix="/posts", tags=["posts"])
 
 
 @router.get("/posts", response_model=PostListResponse)

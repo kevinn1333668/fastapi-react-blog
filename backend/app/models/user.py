@@ -3,6 +3,11 @@ from backend.app.utils.time_utils import utcnow
 from sqlalchemy import ForeignKey, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from backend.app.models.comment import Comment
+
 
 class User(Base):
     __tablename__ = "users"
@@ -19,4 +24,10 @@ class User(Base):
         DateTime(timezone=True),
         default=utcnow,
         nullable=False
+    )
+
+    comments: Mapped[list["Comment"]] = relationship(
+        "Comment",
+        back_populates="author",
+        cascade="all, delete-orphan",
     )

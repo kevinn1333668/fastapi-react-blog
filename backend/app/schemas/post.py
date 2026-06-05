@@ -1,6 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
+from backend.app.schemas.comment import CommentResponse
+
 
 class PostImageResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

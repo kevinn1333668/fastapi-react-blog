@@ -4,16 +4,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from backend.app.models.user import User
+from backend.app.repositories.comment_repository import CommentRepository
 from backend.app.schemas.user import UserResponse
 from backend.app.services.auth_service import AuthService
 from backend.app.repositories.user_repository import UserRepository
 from backend.app.dependencies.db import get_db
 from backend.app.core.security import decode_token, oauth2_scheme
+from backend.app.services.comment_service import CommentService
 
 
 def get_auth_service(db: Annotated[AsyncSession, Depends(get_db)]) -> AuthService:
     repo = UserRepository(db)
     return AuthService(repo)
+
 
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],

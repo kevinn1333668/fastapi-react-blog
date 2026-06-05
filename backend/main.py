@@ -6,6 +6,7 @@ from backend.app.api.endpoints import auth
 from backend.app.api.endpoints import posts
 from backend.app.api.endpoints import admin_posts
 from backend.app.api.endpoints import uploads
+from backend.app.api.endpoints import comments
 
 app = FastAPI(
     docs_url="/docs",
@@ -26,3 +27,4 @@ app.include_router(auth.router)
 app.include_router(posts.router)
 app.include_router(admin_posts.router)
 app.include_router(uploads.router)
+app.include_router(comments.router)
