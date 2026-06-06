@@ -40,8 +40,8 @@ class QuizService:
             "title": quiz.title,
             "topic": quiz.topic,
             "description": quiz.description,
-            "schema": clean_schema,
-    }
+            "quiz_schema": clean_schema,
+        }
 
     async def get_published_quizzes(self) -> list[Quiz]:
         return await self.quiz_repository.get_all_published()
@@ -51,6 +51,8 @@ class QuizService:
 
     async def update_quiz(self, quiz_id: int, data: QuizUpdate) -> Quiz:
         quiz = await self.quiz_repository.get_by_id(quiz_id)
+        if not quiz:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz not found")
 
         if data.title is not None:
             quiz.title = data.title
@@ -67,6 +69,8 @@ class QuizService:
 
     async def delete_quiz(self, quiz_id: int) -> None:
         quiz = await self.quiz_repository.get_by_id(quiz_id)
+        if not quiz:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz not found")
         await self.quiz_repository.delete(quiz)
 
     async def submit_answers(

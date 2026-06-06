@@ -17,6 +17,7 @@ function AdminPosts() {
         {sortedPosts.map((post) => (
           <div key={post.id}>
             <CardContent
+              postId={post.id}
               content={post.content || "Описание отсутствует"}
               images={post.images}
               date={post.created_at}

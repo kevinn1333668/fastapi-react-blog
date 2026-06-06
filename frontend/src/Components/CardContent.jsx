@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
+import { MessageCircle } from "lucide-react";
 import { API_BASE } from "../api/posts";
 import PostActionsMenu from "./PostActionsMenu";
+import CommentsPanel from "./CommentsPanel";
 
 export default function CardContent({
+  postId,
   content,
   images = [],
   date,
@@ -14,6 +17,7 @@ export default function CardContent({
   const PREVIEW_LIMIT = 4;
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
   const sortedImages = useMemo(
     () => [...images].sort((a, b) => a.sort_order - b.sort_order),
@@ -114,10 +118,30 @@ export default function CardContent({
 
           <div className="p-6">
             <p className="mb-4 leading-relaxed text-gray-600">{content}</p>
-            <p className="text-sm text-gray-400">{formattedDate}</p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-400">{formattedDate}</p>
+              {postId != null && (
+                <button
+                  type="button"
+                  onClick={() => setCommentsOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 transition rounded-lg hover:bg-gray-100 hover:text-gray-700"
+                >
+                  <MessageCircle size={16} />
+                  Комментарии
+                </button>
+              )}
+            </div>
           </div>
         </article>
       </div>
+
+      {postId != null && (
+        <CommentsPanel
+          postId={postId}
+          open={commentsOpen}
+          onClose={() => setCommentsOpen(false)}
+        />
+      )}
 
       {hasImages && (
         <Lightbox

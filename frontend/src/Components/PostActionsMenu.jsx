@@ -45,7 +45,7 @@ export default function PostActionsMenu({ onEdit, onDelete }) {
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="Действия с постом"
-        className="flex items-center justify-center w-8 h-8 text-gray-500 transition rounded-full hover:bg-gray-100 hover:text-gray-700"
+        className="flex justify-center items-center w-8 h-8 text-gray-500 rounded-full transition hover:bg-gray-100 hover:text-gray-700"
       >
         <Menu size={18} strokeWidth={2.25} />
       </button>
@@ -61,7 +61,7 @@ export default function PostActionsMenu({ onEdit, onDelete }) {
             onClick={handleEdit}
             className="flex items-center w-full gap-2.5 px-3 py-2 text-sm text-left text-gray-700 transition hover:bg-gray-50"
           >
-            <Pencil size={15} className="shrink-0 text-gray-400" />
+            <Pencil size={15} className="text-gray-400 shrink-0" />
             Редактировать
           </button>
           <button

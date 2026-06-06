@@ -19,13 +19,21 @@ function Header() {
       <nav>
         <ul className="flex gap-8 items-center">
           {admin ? (
-            <li>
-              <NavLinkMenu to="/settings">Посты</NavLinkMenu>
-            </li>
+            <>
+              <li>
+                <NavLinkMenu to="/settings">Посты</NavLinkMenu>
+              </li>
+              <li>
+                <NavLinkMenu to="/settings/quizzes">Тесты</NavLinkMenu>
+              </li>
+            </>
           ) : (
             <>
               <li>
                 <NavLinkMenu to="/">Лента</NavLinkMenu>
+              </li>
+              <li>
+                <NavLinkMenu to="/quizzes">Тесты</NavLinkMenu>
               </li>
               <li>
                 <NavLinkMenu to="/about">О проекте</NavLinkMenu>

@@ -14,6 +14,18 @@ import ChangePost from "./Pages/ChangePost";
 import { deletePostAction } from "./Pages/deletePostAction";
 import { changePostAction } from "./Pages/changePostAction";
 import ProtectedRoute from "./Components/ProtectedRoute";
+import QuizList from "./Pages/QuizList";
+import TakeQuiz from "./Pages/TakeQuiz";
+import AdminQuizzes from "./Pages/AdminQuizzes";
+import ChangeQuiz from "./Pages/ChangeQuiz";
+import {
+  quizzesLoader,
+  quizTakeLoader,
+  adminQuizzesLoader,
+  changeQuizLoader,
+} from "./api/quizzes";
+import { deleteQuizAction } from "./Pages/deleteQuizAction";
+import { changeQuizAction } from "./Pages/changeQuizAction";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +57,18 @@ const router = createBrowserRouter([
         errorElement: <ErrorBoundary />,
       },
       { path: "about", element: <About /> },
+      {
+        path: "quizzes",
+        element: <QuizList />,
+        loader: quizzesLoader,
+        errorElement: <ErrorBoundary />,
+      },
+      {
+        path: "quizzes/:id",
+        element: <TakeQuiz />,
+        loader: quizTakeLoader,
+        errorElement: <ErrorBoundary />,
+      },
       { path: "*", element: <NotFound /> },
     ],
   },
@@ -67,6 +91,29 @@ const router = createBrowserRouter([
         element: <ChangePost />,
         loader: changePostLoader,
         action: changePostAction,
+      },
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+  {
+    path: "settings/quizzes",
+    element: (
+      <ProtectedRoute requireAdmin>
+        <Layout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <AdminQuizzes />,
+        loader: adminQuizzesLoader,
+        action: deleteQuizAction,
+      },
+      {
+        path: "change",
+        element: <ChangeQuiz />,
+        loader: changeQuizLoader,
+        action: changeQuizAction,
       },
       { path: "*", element: <NotFound /> },
     ],

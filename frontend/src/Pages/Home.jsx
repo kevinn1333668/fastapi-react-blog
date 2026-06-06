@@ -63,6 +63,7 @@ function Home() {
         {items.map((post) => (
           <CardContent
             key={post.id}
+            postId={post.id}
             content={post.content || "Описание отсутствует"}
             images={post.images}
             date={post.created_at}
