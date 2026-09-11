@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 
 from backend.app.models.comment import Comment
+from backend.app.models.post import Post
 from backend.app.models.user import User
 from backend.app.repositories.comment_repository import CommentRepository
 from backend.app.schemas.comment import CommentCreate, CommentUpdate
@@ -24,10 +25,6 @@ class CommentService:
         return await self.comment_repository.create(comment)
 
     async def get_post_comments(self, post_id: int) -> list[Comment]:
-        post = await self.post_repository.get_by_id(post_id)
-        if not post:
-            raise HTTPException(status_code=404, detail="Post not found")
-
         return await self.comment_repository.get_by_post_id(post_id)
 
     async def update_comment(

@@ -1,11 +1,13 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from backend.app.dependencies.post import get_post_service
 from backend.app.models.user import User
 from backend.app.schemas.comment import CommentResponse, CommentCreate, CommentUpdate
 from backend.app.services.comment_service import CommentService
 from backend.app.dependencies.auth import get_current_user
 from backend.app.dependencies.comments import get_comment_service
+from backend.app.services.post_service import PostService
 
 router = APIRouter(tags=["comments"])
 
@@ -16,10 +18,12 @@ router = APIRouter(tags=["comments"])
 )
 async def get_comments(
         post_id: int,
-        service: Annotated[CommentService, Depends(get_comment_service)],
+        post_service: Annotated[PostService, Depends(get_post_service)],
+        comment_service: Annotated[CommentService, Depends(get_comment_service)],
         current_user: User = Depends(get_current_user),
 ):
-    return await service.get_post_comments(post_id)
+    post = await post_service.get_post_by_id(post_id)
+    return await comment_service.get_post_comments(post.id)
 
 @router.post(
     "/posts/{post_id}/comments",
