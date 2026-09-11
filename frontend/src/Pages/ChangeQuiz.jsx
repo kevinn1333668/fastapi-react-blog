@@ -9,7 +9,8 @@ export default function ChangeQuiz() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
-  const parsedQuestions = parseQuestionsFromSchema(quiz.quiz_schema);
+  const schema = quiz.schema_json ?? quiz.quiz_schema;
+  const parsedQuestions = parseQuestionsFromSchema(schema);
   const [title, setTitle] = useState(quiz.title);
   const [topic, setTopic] = useState(quiz.topic || "");
   const [description, setDescription] = useState(quiz.description || "");

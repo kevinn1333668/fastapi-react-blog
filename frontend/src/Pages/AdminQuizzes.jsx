@@ -27,6 +27,7 @@ export default function AdminQuizzes() {
                 className="relative rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
               >
                 <PostActionsMenu
+                  confirmMessage="Удалить этот тест?"
                   onEdit={() =>
                     navigate(`/settings/quizzes/change?quizId=${quiz.id}`)
                   }

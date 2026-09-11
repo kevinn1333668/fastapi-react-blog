@@ -57,19 +57,29 @@ const router = createBrowserRouter([
         errorElement: <ErrorBoundary />,
       },
       { path: "about", element: <About /> },
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+  {
+    path: "/quizzes",
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
+    children: [
       {
-        path: "quizzes",
+        index: true,
         element: <QuizList />,
         loader: quizzesLoader,
         errorElement: <ErrorBoundary />,
       },
       {
-        path: "quizzes/:id",
+        path: ":id",
         element: <TakeQuiz />,
         loader: quizTakeLoader,
         errorElement: <ErrorBoundary />,
       },
-      { path: "*", element: <NotFound /> },
     ],
   },
   {

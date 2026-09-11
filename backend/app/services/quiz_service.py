@@ -134,7 +134,9 @@ class QuizService:
             correct_answer = question.get("correctAnswer")
             user_answer = answers.get(name)
 
-            is_correct = self._compare_answers(correct_answer, user_answer)
+            is_correct = self._compare_answers(
+                correct_answer, user_answer, question.get("type")
+            )
 
             results.append({
                 "question": name,
@@ -160,9 +162,18 @@ class QuizService:
 
         return questions
 
-    def _compare_answers(self, correct: Any, user: Any) -> bool:
+    def _compare_answers(
+        self, correct: Any, user: Any, qtype: str | None = None
+    ) -> bool:
         if correct is None:
             return True
+
+        if qtype == "checkbox":
+            correct_list = correct if isinstance(correct, list) else []
+            user_list = (
+                user if isinstance(user, list) else ([] if user is None else [user])
+            )
+            return sorted(correct_list) == sorted(user_list)
 
         if isinstance(correct, list) and isinstance(user, list):
             return correct == user

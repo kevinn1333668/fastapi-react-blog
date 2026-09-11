@@ -10,10 +10,14 @@ function ChoiceEditor({ question, index, onChange }) {
   const updateChoice = (choiceIndex, value) => {
     const choices = [...question.choices];
     choices[choiceIndex] = value;
+
     onChange(index, {
       ...question,
       choices,
-      correctAnswer: syncRankingAnswer(choices),
+      correctAnswer:
+        question.type === "ranking"
+          ? syncRankingAnswer(choices)
+          : question.correctAnswer,
     });
   };
 
@@ -32,7 +36,9 @@ function ChoiceEditor({ question, index, onChange }) {
     let correctAnswer = question.correctAnswer;
 
     if (question.type === "checkbox" && Array.isArray(correctAnswer)) {
-      correctAnswer = correctAnswer.filter((c) => c !== removed);
+      correctAnswer = correctAnswer
+        .filter((i) => i !== choiceIndex)
+        .map((i) => (i > choiceIndex ? i - 1 : i));
     } else if (question.type === "radiogroup" && correctAnswer === removed) {
       correctAnswer = "";
     } else if (question.type === "ranking") {
@@ -42,11 +48,15 @@ function ChoiceEditor({ question, index, onChange }) {
     onChange(index, { ...question, choices, correctAnswer });
   };
 
-  const toggleCheckboxCorrect = (choice) => {
-    const current = Array.isArray(question.correctAnswer) ? question.correctAnswer : [];
-    const next = current.includes(choice)
-      ? current.filter((c) => c !== choice)
-      : [...current, choice];
+  const toggleCheckboxCorrect = (choiceIndex) => {
+    if (!question.choices[choiceIndex]?.trim()) return;
+
+    const current = Array.isArray(question.correctAnswer)
+      ? question.correctAnswer
+      : [];
+    const next = current.includes(choiceIndex)
+      ? current.filter((i) => i !== choiceIndex)
+      : [...current, choiceIndex];
     onChange(index, { ...question, correctAnswer: next });
   };
 
@@ -68,10 +78,10 @@ function ChoiceEditor({ question, index, onChange }) {
               type="checkbox"
               checked={
                 Array.isArray(question.correctAnswer) &&
-                question.correctAnswer.includes(choice) &&
+                question.correctAnswer.includes(choiceIndex) &&
                 choice.trim() !== ""
               }
-              onChange={() => toggleCheckboxCorrect(choice)}
+              onChange={() => toggleCheckboxCorrect(choiceIndex)}
             />
           )}
           <input

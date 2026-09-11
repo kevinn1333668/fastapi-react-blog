@@ -14,11 +14,6 @@ export async function deleteQuizAction({ request }) {
   const formData = await request.formData();
   const quizId = formData.get("quiz_id");
 
-  const confirmed = confirm("Удалить этот тест?");
-  if (!confirmed) {
-    return redirect("/settings/quizzes");
-  }
-
   try {
     await deleteQuiz(quizId);
     return redirect("/settings/quizzes");

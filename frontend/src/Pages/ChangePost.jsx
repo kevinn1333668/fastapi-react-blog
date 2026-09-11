@@ -91,9 +91,6 @@ export default function ChangePost() {
     fd.set("post_id", String(post.id));
     fd.set("content", form.content.value);
     fd.set("image_urls", JSON.stringify(keptUrls));
-    if (form.is_published.checked) {
-      fd.set("is_published", "on");
-    }
     selectedFiles.forEach((file) => fd.append("images", file));
     submit(fd, { method: "post", encType: "multipart/form-data" });
   };

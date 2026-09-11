@@ -15,11 +15,6 @@ export async function deletePostAction({ request }) {
   const formData = await request.formData();
   const postId = formData.get("post_id");
 
-  const confirmed = confirm("Удалить этот пост?");
-  if (!confirmed) {
-    return redirect("/settings");
-  }
-
   try {
     await deletePost(postId);
     return redirect("/settings");

@@ -1,6 +1,6 @@
 import { redirect } from "react-router-dom";
 import { apiFetch } from "./client";
-import { ensureAdminAccess, handleApiGuardError, isAdminUser } from "./guards";
+import { ensureAdminAccess, handleApiGuardError } from "./guards";
 import { getStoredToken } from "./auth";
 
 export async function fetchPublishedQuizzes() {
@@ -123,9 +123,6 @@ export async function quizzesLoader() {
   if (!getStoredToken()) {
     throw redirect("/login");
   }
-  if (isAdminUser()) {
-    throw redirect("/settings/quizzes");
-  }
   try {
     return await fetchPublishedQuizzes();
   } catch (err) {
@@ -136,9 +133,6 @@ export async function quizzesLoader() {
 export async function quizTakeLoader({ params }) {
   if (!getStoredToken()) {
     throw redirect("/login");
-  }
-  if (isAdminUser()) {
-    throw redirect("/settings/quizzes");
   }
   try {
     return await fetchQuizForUser(params.id);

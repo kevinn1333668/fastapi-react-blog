@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Menu, Pencil, Trash2 } from "lucide-react";
 
-export default function PostActionsMenu({ onEdit, onDelete }) {
+export default function PostActionsMenu({
+  onEdit,
+  onDelete,
+  confirmMessage = "Удалить этот пост?",
+}) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
 
@@ -33,7 +37,7 @@ export default function PostActionsMenu({ onEdit, onDelete }) {
 
   const handleDelete = () => {
     setOpen(false);
-    if (!window.confirm("Удалить этот пост?")) return;
+    if (!window.confirm(confirmMessage)) return;
     onDelete?.();
   };
 

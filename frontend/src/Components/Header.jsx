@@ -26,6 +26,9 @@ function Header() {
               <li>
                 <NavLinkMenu to="/settings/quizzes">Тесты</NavLinkMenu>
               </li>
+              <li>
+                <NavLinkMenu to="/quizzes">Пройти</NavLinkMenu>
+              </li>
             </>
           ) : (
             <>
