@@ -9,6 +9,7 @@ from backend.app.api.endpoints import uploads
 from backend.app.api.endpoints import comments
 from backend.app.api.endpoints import quiz
 from backend.app.api.endpoints import admin_quiz
+from backend.app.api.endpoints import ws
 
 app = FastAPI(
     docs_url="/docs",
@@ -32,3 +33,4 @@ app.include_router(uploads.router)
 app.include_router(comments.router)
 app.include_router(quiz.router)
 app.include_router(admin_quiz.router)
+app.include_router(ws.router)

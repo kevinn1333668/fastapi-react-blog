@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,24 +19,34 @@ def get_auth_service(db: Annotated[AsyncSession, Depends(get_db)]) -> AuthServic
     return AuthService(repo)
 
 
+def _decode_access_token(token: str) -> int:
+    try:
+        payload = decode_token(token)
+    except Exception as e:
+        logging.exception("WS token decode failed: %s", e)
+        raise ValueError("invalid token") from e
+
+    if payload.get("type") != "access":
+        raise ValueError("invalid token type")
+
+    user_id = payload.get("sub")
+    if user_id is None:
+        raise ValueError("invalid token payload")
+
+    return int(user_id)
+
+
+
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
-    payload = decode_token(token)
 
-    if payload.get("type") != "access":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token type",
-        )
+    try:
+        user_id = _decode_access_token(token)
 
-    user_id = payload.get("sub")
-    if user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token payload",
-        )
+    except ValueError:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid token")
 
     user = await auth_service.get_user_by_id(int(user_id))
     if user is None:
