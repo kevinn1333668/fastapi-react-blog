@@ -4,6 +4,7 @@ import { MessageCircle } from "lucide-react";
 import { API_BASE } from "../api/posts";
 import PostActionsMenu from "./PostActionsMenu";
 import CommentsPanel from "./CommentsPanel";
+import HighlightedText from "./HighlightedText";
 
 export default function CardContent({
   postId,
@@ -13,6 +14,7 @@ export default function CardContent({
   isAdmin = false,
   onDelete,
   onEdit,
+  highlightQuery = "",
 }) {
   const PREVIEW_LIMIT = 4;
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -117,7 +119,9 @@ export default function CardContent({
           )}
 
           <div className="p-6">
-            <p className="mb-4 leading-relaxed text-gray-600">{content}</p>
+            <p className="mb-4 leading-relaxed text-gray-600">
+              <HighlightedText text={content} query={highlightQuery} />
+            </p>
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-400">{formattedDate}</p>
               {postId != null && (
