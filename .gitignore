@@ -82,3 +82,9 @@ dist/
 /node_modules/
 /package.json
 /package-lock.json
+
+# Uploaded media (user content)
+backend/media/posts/
+
+# Feature backups (temporary)
+post-search-feature-backup/
